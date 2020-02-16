@@ -17,6 +17,11 @@ config :sneaky, SneakyWeb.Endpoint,
   render_errors: [view: SneakyWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Sneaky.PubSub, adapter: Phoenix.PubSub.PG2]
 
+config :ueberauth, Ueberauth,
+  providers: [
+    identity: {Ueberauth.Strategy.Identity, [callback_methods: ["POST"]]}
+  ]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

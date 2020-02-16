@@ -20,7 +20,7 @@ defmodule Sneaky.MixProject do
   def application do
     [
       mod: {Sneaky.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :ueberauth_identity]
     ]
   end
 
