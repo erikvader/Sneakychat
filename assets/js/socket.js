@@ -1,5 +1,4 @@
-// NOTE: The contents of this file will only be executed if
-// you uncomment its entry in "assets/js/app.js".
+// NOTE: for debugging the API
 
 // To use Phoenix channels, the first step is to import Socket,
 // and connect at the socket path in "lib/web/endpoint.ex".
@@ -8,7 +7,10 @@
 // from the params if you are not using authentication.
 import {Socket} from "phoenix"
 
-let socket = new Socket("/socket", {params: {token: window.userToken}})
+window.api_test = {}
+const at = window.api_test
+
+at.socket = new Socket("/api/ws")
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
@@ -51,13 +53,31 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 //       end
 //     end
 //
-// Finally, connect to the socket:
-socket.connect()
 
-// Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("topic:subtopic", {})
-channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
-  .receive("error", resp => { console.log("Unable to join", resp) })
+// Connect and listen for sneaks.
+// The username would need to come with the jwt or something and it
+// would be an ActivityPub id url
+at.connect = function(username) {
+  // Finally, connect to the socket:
+  at.socket.connect()
+  // Now that you are connected, you can join channels with a topic:
+  at.channel = at.socket.channel("user:" + username, {})
 
-export default socket
+  at.channel.on("recv_sneak", payload => {
+    console.log("du fick en ny sneak!", payload.msg, "från", payload.from);
+  })
+
+  at.channel.join()
+    .receive("ok", resp => { console.log("Joined successfully", resp) })
+    .receive("error", resp => { console.log("Unable to join", resp) })
+}
+
+// send a sneak to someone
+at.send_sneak = (recv, msg) => at.channel.push("new_sneak", {receiver: recv, msg: msg});
+
+at.get_follows = () => {
+  at.channel.push("follows")
+    .receive("ok", resp => {console.log("dina vänner är:", resp.follows.join(", "))})
+}
+
+export default at.socket
