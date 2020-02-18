@@ -19,6 +19,16 @@ defmodule SneakyWeb.Router do
     get "/", PageController, :index
   end
 
+  scope "/api", SneakyWeb.API do
+    pipe_through :api
+
+    scope "/auth" do
+      # post "/identity", AuthController, :request
+      post "/identity/callback", AuthController, :identity_callback
+      post "/identity/register", AuthController, :identity_register
+    end
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", SneakyWeb do
   #   pipe_through :api
