@@ -19,8 +19,12 @@ config :sneaky, SneakyWeb.Endpoint,
 
 config :ueberauth, Ueberauth,
   providers: [
-    identity: {Ueberauth.Strategy.Identity, [callback_methods: ["POST"]]}
+    identity: {Ueberauth.Strategy.Identity, [callback_methods: ["POST"], callback_path: "/api/auth/identity/callback"]}
   ]
+
+config :sneaky, Sneaky.Guardian,
+  issuer: "sneaky",
+  secret_key: "nVjM7blp0Y/JNHqzUyHHD7yaD9DpVH2CYD5O0ZxogTszPU0GwNGqZjZV6VaYIg/l"
 
 # Configures Elixir's Logger
 config :logger, :console,

@@ -15,5 +15,7 @@ defmodule Sneaky.Auth.User do
     user
     |> cast(attrs, [:username, :email, :password])
     |> validate_required([:username, :email, :password])
+    |> unique_constraint(:email)
+    |> unique_constraint(:username)
   end
 end
