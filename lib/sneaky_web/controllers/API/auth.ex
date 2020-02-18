@@ -27,7 +27,6 @@ defmodule SneakyWeb.API.AuthController do
         nil -> conn |> json(%{"error" => "user not found"})
         user ->
           if user.password == password do
-            # TODO: Return JWT
             {:ok, token, _claims} = Sneaky.Guardian.encode_and_sign(user)
             conn |> json(%{"token" => token})
           else
