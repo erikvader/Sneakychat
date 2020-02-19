@@ -5,7 +5,7 @@ defmodule Sneaky.Auth.User do
   schema "users" do
     field :email, :string
     field :password, :string
-    field :username, :string
+    belongs_to :account_id, Account
 
     timestamps()
   end
@@ -13,9 +13,10 @@ defmodule Sneaky.Auth.User do
   @doc false
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:username, :email, :password])
-    |> validate_required([:username, :email, :password])
+    |> cast(attrs, [:email, :password])
+    |> validate_required([:email, :password])
     |> unique_constraint(:email)
-    |> unique_constraint(:username)
+    |> unique_constraint(:account_id)
   end
+
 end
