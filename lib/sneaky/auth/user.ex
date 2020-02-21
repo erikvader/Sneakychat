@@ -14,6 +14,7 @@ defmodule Sneaky.Auth.User do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :password])
+    |> put_assoc(:account, attrs.account)
     |> validate_required([:email, :password, :account])
     |> unique_constraint(:email)
     |> unique_constraint(:account)

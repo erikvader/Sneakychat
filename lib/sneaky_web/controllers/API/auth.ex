@@ -29,28 +29,48 @@ defmodule SneakyWeb.API.AuthController do
         where: a.username == ^username,
         select: {a, u.password}
 
-
       case Sneaky.Repo.one(query) do
-        nil -> conn |> json(%{"error" => "user not found"})
+        nil -> conn |> json(%{status: 2, msg: "user not found"})
         {acc, pass} ->
           if pass == password do
             {:ok, token, _claims} = Sneaky.Guardian.encode_and_sign(acc)
-            conn |> json(%{"token" => token})
+            conn |> json(%{status: 0, token: token})
           else
-            conn |> json(%{"error" => "incorrect password"})
+            conn |> json(%{status: 1, msg: "incorrect password"})
           end
       end
     end
     def identity_callback(conn, _params), do: conn |> json(%{"error" => "something went wrong"})
 
     def identity_register(conn, %{"username" => username, "password" => password, "email" => email}) do
-      acc = %Sneaky.Auth.Account{username: username, url: "localhost"}
-      usr = %Sneaky.Auth.User{email: email, password: password, account: acc}
+      alias Sneaky.Auth.Account
+      alias Sneaky.Auth.User
 
-      case Sneaky.Repo.insert(usr) do
-        {:ok, _} -> conn |> json(%{status: "user registered"})
-        {:error, changeset} -> conn |> json(%{"error" => "user already exists"}) # TODO: Should actually check changeset errors
+      succ = Sneaky.Repo.transaction(fn repo ->
+        acc_change = Account.changeset(%Account{}, %{username: username, url: "localhost"})
+        with {:ok, acc} <- repo.insert(acc_change),
+             usr_change <- User.changeset(%User{}, %{email: email, password: password, account: acc}),
+             {:ok, usr} <- repo.insert(usr_change)
+        do
+          :ok
+        else
+          {:error, changeset} -> repo.rollback(changeset)
+        end
+      end)
+
+      case succ do
+        {:ok, _} -> conn |> json(%{status: 0, msg: "user registred"})
+        {:error, changeset} ->
+          case changeset.errors do
+            [accounts_username_url_constraint: _] ->
+              json(conn, %{status: 2, msg: "that username is already taken"})
+            [email: _] ->
+              json(conn, %{status: 3, msg: "email already in use"})
+            _ ->
+              IO.inspect(changeset, label: "changeset")
+              conn |> json(%{status: 1, msg: "some random error, please contact support"})
+          end
       end
     end
-    def identity_register(conn, _params), do: conn |> json(%{"error" => "malformed request"})
+    def identity_register(conn, _params), do: conn |> json(%{status: -1, msg: "malformed request"})
 end
