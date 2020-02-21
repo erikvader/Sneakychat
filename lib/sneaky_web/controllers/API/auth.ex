@@ -3,6 +3,7 @@ defmodule SneakyWeb.API.AuthController do
     Handles authentication requests
     """
     use SneakyWeb, :controller
+    import Ecto.Query, only: [from: 2]
     plug Ueberauth
 
     # Should not be used in the current state.
@@ -23,11 +24,17 @@ defmodule SneakyWeb.API.AuthController do
     # TODO: Implement rate-limiting
     # TODO: Hash passwords
     def identity_callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"username" => username, "password" => password}) do
-      case Sneaky.Repo.get_by(Sneaky.Auth.User, username: username) do
+      query = from a in Sneaky.Auth.Account,
+        join: u in Sneaky.Auth.User, on: u.account_id == a.id,
+        where: a.username == ^username,
+        select: {a, u.password}
+
+
+      case Sneaky.Repo.one(query) do
         nil -> conn |> json(%{"error" => "user not found"})
-        user ->
-          if user.password == password do
-            {:ok, token, _claims} = Sneaky.Guardian.encode_and_sign(user)
+        {acc, pass} ->
+          if pass == password do
+            {:ok, token, _claims} = Sneaky.Guardian.encode_and_sign(acc)
             conn |> json(%{"token" => token})
           else
             conn |> json(%{"error" => "incorrect password"})
@@ -37,10 +44,11 @@ defmodule SneakyWeb.API.AuthController do
     def identity_callback(conn, _params), do: conn |> json(%{"error" => "something went wrong"})
 
     def identity_register(conn, %{"username" => username, "password" => password, "email" => email}) do
-      changeset = Sneaky.Auth.User.changeset(%Sneaky.Auth.User{}, %{username: username, password: password, email: email})
+      acc = %Sneaky.Auth.Account{username: username, url: "localhost"}
+      usr = %Sneaky.Auth.User{email: email, password: password, account: acc}
 
-      case Sneaky.Repo.insert(changeset) do
-        {:ok, _} -> conn |> json(%{"status": "user registered"})
+      case Sneaky.Repo.insert(usr) do
+        {:ok, _} -> conn |> json(%{status: "user registered"})
         {:error, changeset} -> conn |> json(%{"error" => "user already exists"}) # TODO: Should actually check changeset errors
       end
     end

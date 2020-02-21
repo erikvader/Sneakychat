@@ -80,4 +80,42 @@ at.get_follows = () => {
     .receive("ok", resp => {console.log("dina vänner är:", resp.follows.join(", "))})
 }
 
+at.register = (user, pass, elektronisk_brevpost) => {
+  const resp = fetch(
+    "/api/auth/identity/register",
+    {
+      method: 'POST',
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({username: user, password: pass, email: elektronisk_brevpost})
+    }
+  )
+
+  resp
+    .then(resp => resp.json())
+    .then(resp => console.log(resp))
+    .catch(err => console.error(err));
+}
+
+at.login = (user, pass) => {
+  const resp = fetch(
+    "/api/auth/identity/callback",
+    {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({username: user, password: pass})
+    }
+  )
+
+  resp
+    .then(resp => resp.json())
+    .then(resp => console.log(resp))
+    .catch(err => console.error(err));
+}
+
 export default at.socket
