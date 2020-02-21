@@ -5,6 +5,7 @@ defmodule Sneaky.Auth.Account do
   schema "accounts" do
     field :username, :string
     field :url, :string
+    has_one :user, Sneaky.Auth.User
 
     timestamps()
   end

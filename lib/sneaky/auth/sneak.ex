@@ -4,7 +4,7 @@ defmodule Sneaky.Auth.Sneak do
 
   schema "sneaks" do
     field :url, :string
-    belongs_to :sender, Account
+    belongs_to :sender, Sneaky.Auth.Account
 
     timestamps()
   end

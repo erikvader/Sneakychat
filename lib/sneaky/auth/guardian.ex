@@ -11,7 +11,8 @@ defmodule Sneaky.Guardian do
 
   def resource_from_claims(claims) do
     id = claims["sub"]
-    resource = Sneaky.Repo.get(Sneaky.Auth.User, id)
+    resource = Sneaky.Repo.get(Sneaky.Auth.Account, id)
+    resource = Sneaky.Repo.preload(resource, :user)
     {:ok, resource}
   end
   def resource_from_claims(_claims) do

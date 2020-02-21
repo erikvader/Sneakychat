@@ -3,8 +3,8 @@ defmodule Sneaky.Auth.Follow do
   import Ecto.Changeset
 
   schema "follows" do
-    belongs_to :alice, Account
-    belongs_to :bob, Account
+    belongs_to :alice, Sneaky.Auth.Account
+    belongs_to :bob, Sneaky.Auth.Account
 
     timestamps()
   end

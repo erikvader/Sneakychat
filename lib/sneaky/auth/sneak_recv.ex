@@ -3,8 +3,8 @@ defmodule Sneaky.Auth.SneakRecv do
   import Ecto.Changeset
 
   schema "sneak_recvs" do
-    belongs_to :recv, Account
-    belongs_to :sneak_id, Sneak
+    belongs_to :recv, Sneaky.Auth.Account
+    belongs_to :sneak, Sneaky.Auth.Sneak
 
     timestamps()
   end
