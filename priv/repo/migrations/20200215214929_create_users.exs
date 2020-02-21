@@ -26,11 +26,11 @@ defmodule Sneaky.Repo.Migrations.CreateUsers do
 
     # follows #################################################################
     create table(:follows) do
-      add :alice, references(:accounts)
-      add :bob, references(:accounts)
+      add :subject, references(:accounts)
+      add :follows, references(:accounts)
     end
 
-    create unique_index(:follows, [:alice, :bob], name: :follows_alice_bob)
+    create unique_index(:follows, [:subject, :follows], name: :follows_subject_follows)
 
     # sneak ###################################################################
     create table(:sneaks) do

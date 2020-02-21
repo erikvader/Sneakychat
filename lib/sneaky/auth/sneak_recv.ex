@@ -12,7 +12,6 @@ defmodule Sneaky.Auth.SneakRecv do
   @doc false
   def changeset(user, attrs) do
     user
-    # |> cast(attrs, [:])
     |> validate_required([:recv, :sneak_id])
     |> unique_constraint(:sneak_recvs_sneak_id_constraint, name: :sneak_recv_sneak_id)
   end
