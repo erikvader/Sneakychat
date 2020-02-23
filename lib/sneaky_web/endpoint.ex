@@ -10,7 +10,7 @@ defmodule SneakyWeb.Endpoint do
     signing_salt: "rTtxN3lw"
   ]
 
-  socket "/socket", SneakyWeb.UserSocket,
+  socket "/api/ws", SneakyWeb.UserSocket,
     websocket: true,
     longpoll: false
 

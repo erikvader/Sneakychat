@@ -2,7 +2,7 @@ defmodule SneakyWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", SneakyWeb.RoomChannel
+  channel "user:*", SneakyWeb.UserChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
