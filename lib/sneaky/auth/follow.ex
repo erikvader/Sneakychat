@@ -12,6 +12,7 @@ defmodule Sneaky.Auth.Follow do
   @doc false
   def changeset(user, attrs) do
     user
+    |> cast(attrs, [])
     |> validate_required([:subject, :follows])
     |> unique_constraint(:follows_subject_follows_constraint, name: :follows_subject_follows)
   end
