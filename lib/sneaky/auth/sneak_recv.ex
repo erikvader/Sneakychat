@@ -16,7 +16,7 @@ defmodule Sneaky.Auth.SneakRecv do
     |> put_assoc(:sneak, attrs.sneak)
     |> put_assoc(:recv, attrs.recv)
     |> validate_required([:recv, :sneak])
-    |> unique_constraint(:sneak_recvs_sneak_id_constraint, name: :sneak_recv_sneak_id)
+    |> unique_constraint(:sneak_recvs_sneak_id_constraint, name: :sneak_recvs_sneak_id)
   end
 
 end

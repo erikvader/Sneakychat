@@ -118,9 +118,9 @@ at.login = (user, pass) => {
     .catch(err => console.error(err));
 }
 
-at.send_sneak = () => {
+at.send_sneak = (receiver, sender) => {
   const resp = fetch(
-    "/users/staffan/inbox",
+    `/users/${receiver}/inbox`,
     {
       method: "POST",
       headers: {
@@ -130,8 +130,8 @@ at.send_sneak = () => {
       body: JSON.stringify({
         "@context": "asdasd",
         "type": "Create",
-        "actor": "http://localhost/users/albin",
-        "to": "http://localhost/users/staffan",
+        "actor": `http://localhost/users/${sender}`,
+        "to": `http://localhost/users/${receiver}`,
         "object": {
           "type": "Link",
           "href": "http://asdasd.com",
