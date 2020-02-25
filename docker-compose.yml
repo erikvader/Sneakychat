@@ -5,6 +5,13 @@ services:
     image: postgres:11-alpine
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+  minio:
+    image: minio/minio
+    command: "server /data"
+    ports:
+      - "9000:9000"
+    volumes:
+      - data:/data
   web:
     build: .
     env_file: .env
@@ -21,3 +28,4 @@ services:
 volumes:
   node_modules:
   build:
+  data:
