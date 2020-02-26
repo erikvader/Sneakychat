@@ -15,8 +15,15 @@ defmodule SneakyWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket, _connect_info) do
-    {:ok, socket}
+  def connect(%{"token" => token}, socket, _connect_info) do
+    case Sneaky.Guardian.decode_and_verify(token) do
+      {:ok, claims} -> {:ok, assign(socket, :user_id, claims["sub"])}
+      _ -> :error
+    end
+  end
+
+  def connect(_params, _socket, _connect_info) do
+    :error
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

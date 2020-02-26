@@ -1,8 +1,16 @@
 defmodule SneakyWeb.UserChannel do
   use Phoenix.Channel
 
-  def join("user:" <> username, _message, socket) do
-    {:ok, assign(socket, :username, username)}
+  def join(
+    "user:" <> uid,
+    _message,
+    %Phoenix.Socket{assigns: %{user_id: user_id}} = socket)
+  when user_id == uid do
+    {:ok, socket}
+  end
+
+  def join(_channel, _message, _socket) do
+    {:error, %{reason: "det är olagligt att joina med fel user_id"}}
   end
 
   # send a sneak to another connected user
@@ -12,13 +20,13 @@ defmodule SneakyWeb.UserChannel do
     # TODO: receiver är en url to en potentiellt annan server, så vi
     # vill egentligen göra en post här till "receiver/inbox" ?
 
-    "http://localhost/" <> username = receiver
-    SneakyWeb.Endpoint.broadcast_from!(
-      self(),
-      "user:#{username}",
-      "recv_sneak",
-      %{msg: msg, from: socket.assigns[:username]} # TODO: stoppa in vår egna domän?
-    )
+    # "http://localhost/" <> username = receiver
+    # SneakyWeb.Endpoint.broadcast_from!(
+    #   self(),
+    #   "user:#{username}",
+    #   "recv_sneak",
+    #   %{msg: msg, from: socket.assigns[:username]} # TODO: stoppa in vår egna domän?
+    # )
     {:noreply, socket}
   end
 
