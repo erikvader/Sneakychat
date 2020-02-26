@@ -44,6 +44,7 @@ defmodule Sneaky.Repo.Migrations.CreateUsers do
 
     create unique_index(:sneaks, [:url, :sender_id], name: :sneaks_url_sender)
 
+    # sneak_recv ##############################################################
     create table(:sneak_recvs) do
       add :recv_id, references(:accounts)
       add :sneak_id, references(:sneaks)
