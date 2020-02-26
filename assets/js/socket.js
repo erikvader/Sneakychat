@@ -118,7 +118,7 @@ at.login = (user, pass) => {
     .catch(err => console.error(err));
 }
 
-at.send_sneak = (receiver, sender) => {
+at.send_sneak = (receiver, sender, url) => {
   const resp = fetch(
     `/users/${receiver}/inbox`,
     {
@@ -134,7 +134,7 @@ at.send_sneak = (receiver, sender) => {
         "to": `http://localhost/users/${receiver}`,
         "object": {
           "type": "Link",
-          "href": "http://asdasd.com",
+          "href": url,
           "mediaType": "image/png"
         }
       })
