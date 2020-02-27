@@ -1,16 +1,16 @@
 defmodule SneakyWeb.UserChannel do
   use Phoenix.Channel
 
-  def join(
-    "user:" <> uid,
-    _message,
-    %Phoenix.Socket{assigns: %{user_id: user_id}} = socket)
-  when user_id == uid do
-    {:ok, socket}
+  def join("user:" <> uid, _message, socket) do
+    if uid == socket.assigns.user_id do
+      {:ok, socket}
+    else
+      {:error, %{reason: "det är olagligt att joina med fel user_id, försöker du att impersonata någon??"}}
+    end
   end
 
   def join(_channel, _message, _socket) do
-    {:error, %{reason: "det är olagligt att joina med fel user_id"}}
+    {:error, %{reason: "det är inte lagligt enligt lag att joina en topic som jag inte tillåter"}}
   end
 
   # send a sneak to another connected user

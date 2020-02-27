@@ -16,9 +16,11 @@ defmodule SneakyWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(%{"token" => token}, socket, _connect_info) do
-    case Sneaky.Guardian.decode_and_verify(token) do
-      {:ok, claims} -> {:ok, assign(socket, :user_id, claims["sub"])}
-      _ -> :error
+    case Sneaky.Guardian.resource_from_token(token) do
+      {:ok, resource, claims} -> {:ok, socket
+                                       |> assign(:user_id, claims["sub"])
+                                       |> assign(:account, resource)}
+      {:error, _} -> :error
     end
   end
 
