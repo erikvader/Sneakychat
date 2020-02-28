@@ -10,8 +10,6 @@ import {Socket} from "phoenix"
 window.api_test = {}
 const at = window.api_test
 
-at.socket = new Socket("/api/ws")
-
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
 // which authenticates the session and assigns a `:current_user`.
@@ -55,13 +53,14 @@ at.socket = new Socket("/api/ws")
 //
 
 // Connect and listen for sneaks.
-// The username would need to come with the jwt or something and it
-// would be an ActivityPub id url
-at.connect = function(username) {
+at.connect = function(jwt) {
+  at.socket = new Socket("/api/ws", {params: {token: jwt}})
   // Finally, connect to the socket:
   at.socket.connect()
+
+  const user_id = JSON.parse(atob(jwt.split(".")[1])).sub
   // Now that you are connected, you can join channels with a topic:
-  at.channel = at.socket.channel("user:" + username, {})
+  at.channel = at.socket.channel("user:" + user_id, {})
 
   at.channel.on("recv_sneak", payload => {
     console.log("du fick en ny sneak!", payload.msg, "från", payload.from);
@@ -112,10 +111,16 @@ at.login = (user, pass) => {
     }
   )
 
-  resp
-    .then(resp => resp.json())
+  const json_prom = resp.then(resp => resp.json())
+  json_prom
     .then(resp => console.log(resp))
     .catch(err => console.error(err));
+  return json_prom;
+}
+
+at.login_n_connect = (user, pass) => {
+  at.login(user, pass)
+    .then(resp => at.connect(resp.token))
 }
 
 at.send_sneak = (receiver, sender, url) => {
