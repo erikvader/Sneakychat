@@ -26,25 +26,32 @@ defmodule Sneaky.Repo.Migrations.CreateUsers do
 
     # follows #################################################################
     create table(:follows) do
-      add :subject, references(:accounts)
-      add :follows, references(:accounts)
+      add :subject_id, references(:accounts)
+      add :follows_id, references(:accounts)
+
+      timestamps()
     end
 
-    create unique_index(:follows, [:subject, :follows], name: :follows_subject_follows)
+    create unique_index(:follows, [:subject_id, :follows_id], name: :follows_subject_follows)
 
     # sneak ###################################################################
     create table(:sneaks) do
       add :url, :string
-      add :sender, references(:accounts)
+      add :sender_id, references(:accounts)
+
+      timestamps()
     end
 
-    create unique_index(:sneaks, [:url, :sender], name: :sneaks_url_sender)
+    create unique_index(:sneaks, [:url, :sender_id], name: :sneaks_url_sender)
 
+    # sneak_recv ##############################################################
     create table(:sneak_recvs) do
-      add :recv, references(:accounts)
+      add :recv_id, references(:accounts)
       add :sneak_id, references(:sneaks)
+
+      timestamps()
     end
 
-    create unique_index(:sneak_recvs, [:recv, :sneak_id], name: :sneak_recvs_sneak_id)
+    create unique_index(:sneak_recvs, [:recv_id, :sneak_id], name: :sneak_recvs_sneak_id)
   end
 end

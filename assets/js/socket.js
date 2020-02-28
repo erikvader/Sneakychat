@@ -118,4 +118,33 @@ at.login = (user, pass) => {
     .catch(err => console.error(err));
 }
 
+at.send_sneak = (receiver, sender, url) => {
+  const resp = fetch(
+    `/users/${receiver}/inbox`,
+    {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "@context": "asdasd",
+        "type": "Create",
+        "actor": `http://localhost/users/${sender}`,
+        "to": `http://localhost/users/${receiver}`,
+        "object": {
+          "type": "Link",
+          "href": url,
+          "mediaType": "image/png"
+        }
+      })
+    }
+  )
+
+  resp
+    .then(resp => resp.json())
+    .then(resp => console.log(resp))
+    .catch(err => console.error(err));
+}
+
 export default at.socket

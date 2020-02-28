@@ -29,6 +29,12 @@ defmodule SneakyWeb.Router do
     end
   end
 
+  scope "/users", SneakyWeb do
+    pipe_through :api
+
+    post "/:username/inbox", InboxController, :inbox
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", SneakyWeb do
   #   pipe_through :api

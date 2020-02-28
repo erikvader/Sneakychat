@@ -13,6 +13,7 @@ defmodule Sneaky.Auth.Sneak do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:url])
+    |> put_assoc(:sender, attrs.sender)
     |> validate_required([:url, :sender])
     |> unique_constraint(:sneaks_url_sender_constraint, name: :sneaks_url_sender)
   end
