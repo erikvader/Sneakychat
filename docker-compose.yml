@@ -21,7 +21,7 @@ services:
       - node_modules:/app/assets/node_modules
       - build:/app/_build
     ports:
-      - "4000:4000"
+      - "80:80"
     depends_on:
       - db
 
