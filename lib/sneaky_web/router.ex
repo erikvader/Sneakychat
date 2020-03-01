@@ -17,6 +17,8 @@ defmodule SneakyWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    get "/auth", AuthController, :request
   end
 
   scope "/api", SneakyWeb.API do
