@@ -6,6 +6,7 @@
 // Pass the token on params as below. Or remove it
 // from the params if you are not using authentication.
 import {Socket} from "phoenix"
+import cat from "./cat.js"
 
 window.api_test = {}
 const at = window.api_test
@@ -72,7 +73,11 @@ at.connect = function(jwt) {
 }
 
 // send a sneak to someone
-at.send_sneak = (recv, msg) => at.channel.push("new_sneak", {receiver: recv, msg: msg});
+at.client_send_sneak = recv => {
+  at.channel.push("new_sneak", {receiver: recv, img: cat})
+    .receive("ok", resp => {console.log("bild uppladades", resp)})
+    .receive("error", resp => {console.log("fel med uppladning utav bild", resp)})
+}
 
 at.get_follows = () => {
   at.channel.push("follows")
@@ -123,7 +128,7 @@ at.login_n_connect = (user, pass) => {
     .then(resp => at.connect(resp.token))
 }
 
-at.send_sneak = (receiver, sender, url) => {
+at.server_send_sneak = (receiver, sender, url) => {
   const resp = fetch(
     `/users/${receiver}/inbox`,
     {

@@ -30,6 +30,18 @@ config :sneaky, SneakyWeb.Endpoint,
     ]
   ]
 
+# minio
+config :ex_aws,
+  region: "local",
+  access_key_id: "minioadmin",
+  secret_access_key: "minioadmin"
+
+config :ex_aws, :s3,
+  region: "local",
+  scheme: "http://",
+  port: 9000,
+  host: "minio"
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
