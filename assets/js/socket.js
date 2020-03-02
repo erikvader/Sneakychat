@@ -152,4 +152,28 @@ at.send_sneak = (receiver, sender, url) => {
     .catch(err => console.error(err));
 }
 
+at.follow = (followee, follower) => {
+    const resp = fetch(
+        `/users/${followee}/followers`,
+        {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "@context": "https://www.w3.org/ns/activitystreams",
+                "type": "Follow",
+                "actor": `http://localhost/users/${follower}`,
+                "object": `http://localhost/users/${followee}`
+            })
+        }
+    )
+
+    resp
+        .then(resp => resp.json())
+        .then(resp => console.log(resp))
+        .catch(err => console.error(err));
+}
+
 export default at.socket

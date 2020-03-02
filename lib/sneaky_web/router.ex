@@ -33,6 +33,7 @@ defmodule SneakyWeb.Router do
     pipe_through :api
 
     post "/:username/inbox", InboxController, :inbox
+    post "/:username/followers", FollowController, :follow
   end
 
   # Other scopes may use custom stacks.
