@@ -2,11 +2,11 @@ defmodule SneakyWeb.UserChannel do
   use Phoenix.Channel
   import SneakyWeb.Lib.Sneak
 
-  def join("user:" <> uid, _message, socket) do
-    if uid == socket.assigns.user_id do
+  def join("user:" <> username, _message, socket) do
+    if username == socket.assigns.account.username do
       {:ok, socket}
     else
-      {:error, %{reason: "det är olagligt att joina med fel user_id, försöker du att impersonata någon??"}}
+      {:error, %{reason: "det är olagligt att använda någon annans användarnamn"}}
     end
   end
 
@@ -30,14 +30,6 @@ defmodule SneakyWeb.UserChannel do
     else
       {:reply, {:error, %{"reason" => "bad request"}}, socket}
     end
-
-    # "http://localhost/" <> username = receiver
-    # SneakyWeb.Endpoint.broadcast_from!(
-    #   self(),
-    #   "user:#{username}",
-    #   "recv_sneak",
-    #   %{msg: msg, from: socket.assigns[:username]}
-    # )
   end
 
   def handle_in("new_sneak", _message, socket) do

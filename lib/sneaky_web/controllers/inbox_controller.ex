@@ -19,7 +19,13 @@ defmodule SneakyWeb.InboxController do
            %{username: receiver, url: "localhost"}
          ) do
 
-      # TODO: skicka notifikation här
+      # send notification
+      SneakyWeb.Endpoint.broadcast_from!(
+        self(),
+        "user:#{receiver}",
+        "recv_sneak",
+        %{msg: "you got mail!"}
+      )
       json(conn, %{status: 0, msg: "ok"})
     else
       _ -> json(conn, %{status: 1, msg: "any kind of error occured"})

@@ -54,17 +54,16 @@ const at = window.api_test
 //
 
 // Connect and listen for sneaks.
-at.connect = function(jwt) {
+at.connect = function(jwt, username) {
   at.socket = new Socket("/api/ws", {params: {token: jwt}})
   // Finally, connect to the socket:
   at.socket.connect()
 
-  const user_id = JSON.parse(atob(jwt.split(".")[1])).sub
   // Now that you are connected, you can join channels with a topic:
-  at.channel = at.socket.channel("user:" + user_id, {})
+  at.channel = at.socket.channel("user:" + username, {})
 
   at.channel.on("recv_sneak", payload => {
-    console.log("du fick en ny sneak!", payload.msg, "från", payload.from);
+    console.log("du fick en ny sneak!", payload.msg);
   })
 
   at.channel.join()
@@ -128,7 +127,7 @@ at.login = (user, pass) => {
 
 at.login_n_connect = (user, pass) => {
   at.login(user, pass)
-    .then(resp => at.connect(resp.token))
+    .then(resp => at.connect(resp.token, user))
 }
 
 at.server_send_sneak = (receiver, sender, url) => {
