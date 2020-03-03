@@ -26,7 +26,7 @@ defmodule SneakyWeb.API.AuthController do
     def identity_callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"username" => username, "password" => password}) do
       case SneakyWeb.Lib.Auth.authenticate(username, password) do
         {:ok, token} -> conn |> json(%{status: 0, token: token})
-        {:error, :password} -> conn |> json(%{status: 1, msg: "incorrect password"})
+        {:error, :password} -> conn |> json(%{status: 1, msg: "incorrect password"}) # TODO: Should we really say this?
         {:error, :not_found} -> conn |> json(%{status: 2, msg: "user not found"})
       end
     end

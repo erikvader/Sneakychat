@@ -19,7 +19,10 @@ config :sneaky, SneakyWeb.Endpoint,
 
 config :ueberauth, Ueberauth,
   providers: [
-    identity: {Ueberauth.Strategy.Identity, [callback_methods: ["POST"], callback_path: "/api/auth/identity/callback"]}
+    identity: {Ueberauth.Strategy.Identity, [
+      callback_methods: ["POST"], 
+      request_path: "/auth",
+      callback_path: "/auth/identity/callback"]}
   ]
 
 config :sneaky, Sneaky.Guardian,
