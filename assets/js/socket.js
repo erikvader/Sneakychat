@@ -73,8 +73,11 @@ at.connect = function(jwt) {
 }
 
 // send a sneak to someone
-at.client_send_sneak = recv => {
-  at.channel.push("new_sneak", {recv_user: recv, recv_host: "localhost", img: cat})
+at.client_send_sneak = recvs => {
+  at.channel.push("new_sneak", {
+    to: recvs.map(r => ({recv_user: r, recv_host: "localhost"})),
+    img: cat
+  })
     .receive("ok", resp => {console.log("bild uppladades", resp)})
     .receive("error", resp => {console.log("fel med uppladning utav bild", resp)})
 }
