@@ -1,6 +1,13 @@
 defmodule SneakyWeb.Util do
   import Ecto.Query, only: [from: 2]
 
+  # Returns true if `username` is in our `accounts` table.
+  def account_exists?(username) do
+    query = from a in Sneaky.Auth.Account,
+      where: a.username == ^username
+    Sneaky.Repo.exists?(query)
+  end
+
   # returns true if `username` is in our `users` table.
   def user_exists?(username) do
     query = from a in Sneaky.Auth.Account,
