@@ -11,11 +11,12 @@ defmodule SneakyWeb.AuthController do
   
   def identity_callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
     with %{"username" => username, "password" => password} <- auth.extra.raw_info,
-         {:ok, user} <-SneakyWeb.Lib.Auth.authenticate_(username, password)
+         {:ok, user} <- SneakyWeb.Lib.Auth.authenticate_(username, password),
+         claims <- %{"role" => 2}
     do
       conn
       |> put_flash(:info, "Signed in!")
-      |> Sneaky.Guardian.Plug.sign_in(user)
+      |> Sneaky.Guardian.Plug.sign_in(user, claims)
       |> configure_session(renew: true)
       |> redirect(to: "/")
     else
@@ -27,6 +28,8 @@ defmodule SneakyWeb.AuthController do
   end
 
   def identity_callback(conn, _params) do
-    conn |> text("Request not decorated with Auth")
+    conn
+    |> put_flash(:error, "Something went wrong")
+    |> redirect(to: "/auth/")
   end
 end
