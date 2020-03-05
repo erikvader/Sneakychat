@@ -45,9 +45,9 @@ defmodule SneakyWeb.Lib.Auth do
       acc_change = Account.changeset(%Account{}, %{username: username, url: "localhost"})
       with {:ok, acc} <- repo.insert(acc_change),
            usr_change <- User.changeset(%User{}, %{email: email, password: password, account: acc, role: role}),
-           {:ok, usr} <- repo.insert(usr_change)
+           {:ok, user} <- repo.insert(usr_change)
       do
-        :ok
+        user
       else
         {:error, changeset} -> repo.rollback(changeset)
       end

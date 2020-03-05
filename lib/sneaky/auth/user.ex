@@ -21,5 +21,4 @@ defmodule Sneaky.Auth.User do
     |> unique_constraint(:email)
     |> unique_constraint(:account)
   end
-
 end

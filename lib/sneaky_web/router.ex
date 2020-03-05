@@ -48,9 +48,9 @@ defmodule SneakyWeb.Router do
 
       get "/", AdminController, :index
 
-      #! TODO: Should not require authentication 
+      #! TODO: Should not require authentication
+      #! TODO: Check if already set-up
       scope "/setup" do
-        # TODO: Check if already set-up
         get "/", AdminController, :setup
         post "/", AdminController, :setup
         get "/step/:step", AdminController, :setup
