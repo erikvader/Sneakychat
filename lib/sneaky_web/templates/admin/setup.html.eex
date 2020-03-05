@@ -1,0 +1,14 @@
+<section>
+  <h1>SneakyChat Setup Wizard</h1>
+
+  <h2>Create an admin account</h2>
+  <%= form_for @conn, "", fn f -> %>
+    <label>email</label>
+    <%= text_input f, :email %>
+    <label>username</label>
+    <%= text_input f, :username %>
+    <label>password</label>
+    <%= password_input f, :password %>
+    <%= submit "create account" %>
+  <% end %>
+</section>

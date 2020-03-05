@@ -36,4 +36,21 @@ defmodule SneakyWeb.Lib.Auth do
         end
     end
   end
+
+  def create_user(email, username, password, role) do
+    alias Sneaky.Auth.Account
+    alias Sneaky.Auth.User
+
+    Sneaky.Repo.transaction(fn repo ->
+      acc_change = Account.changeset(%Account{}, %{username: username, url: "localhost"})
+      with {:ok, acc} <- repo.insert(acc_change),
+           usr_change <- User.changeset(%User{}, %{email: email, password: password, account: acc, role: role}),
+           {:ok, usr} <- repo.insert(usr_change)
+      do
+        :ok
+      else
+        {:error, changeset} -> repo.rollback(changeset)
+      end
+    end)
+  end
 end

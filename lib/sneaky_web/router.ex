@@ -46,7 +46,15 @@ defmodule SneakyWeb.Router do
     scope "/admin" do
       pipe_through [:maybe_auth, :just_auth]
 
-      get "/", PageController, :index
+      get "/", AdminController, :index
+
+      #! TODO: Should not require authentication 
+      scope "/setup" do
+        # TODO: Check if already set-up
+        get "/", AdminController, :setup
+        post "/", AdminController, :setup
+        get "/step/:step", AdminController, :setup
+      end
     end
   end
 

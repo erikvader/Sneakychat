@@ -12,7 +12,7 @@ defmodule SneakyWeb.AuthController do
   def identity_callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
     with %{"username" => username, "password" => password} <- auth.extra.raw_info,
          {:ok, user} <- SneakyWeb.Lib.Auth.authenticate_(username, password),
-         claims <- %{"role" => 2}
+         claims <- %{"role" => 2} #! TODO: Use claims from DB
     do
       conn
       |> put_flash(:info, "Signed in!")

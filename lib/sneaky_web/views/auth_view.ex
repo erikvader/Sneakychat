@@ -1,3 +1,3 @@
 defmodule SneakyWeb.AuthView do
-    use SneakyWeb, :view
+  use SneakyWeb, :view
 end
