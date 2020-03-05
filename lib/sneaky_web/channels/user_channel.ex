@@ -43,14 +43,14 @@ defmodule SneakyWeb.UserChannel do
 
     with uri <- URI.parse(friend),
          "/users/" <> friend <- uri.path do
-      friend_acc = get_account(friend, "localhost")
+      friend_acc = get_account(friend, uri.host)
 
       %Follow{}
       |> Follow.changeset(%{subject: user_acc, follows: friend_acc})
       |> Sneaky.Repo.insert
       |> case do
            {:ok, _} -> {:reply, :ok, socket}
-           {:error, _} -> {:reply, :error, socket}
+           {:error, _} -> {:reply, {:error, %{reason: "already following"}}, socket}
          end
     end
   end
@@ -63,13 +63,15 @@ defmodule SneakyWeb.UserChannel do
 
     with uri <- URI.parse(not_friend),
          "/users/" <> not_friend <- uri.path do
-      not_friend_acc = Sneaky.Repo.get_by!(Account, [username: not_friend, url: uri.host])
-
-      case Sneaky.Repo.get_by(Follow, [subject_id: user_acc.id, follows_id: not_friend_acc.id]) do
-        nil -> {:reply, :error, socket}
-        row ->
-          Sneaky.Repo.delete!(row)
-          {:reply, :ok, socket}
+      case Sneaky.Repo.get_by(Account, [username: not_friend, url: uri.host]) do
+        nil -> {:reply, {:error, %{reason: "no such account"}}, socket}
+        not_friend_acc ->
+          case Sneaky.Repo.get_by(Follow, [subject_id: user_acc.id, follows_id: not_friend_acc.id]) do
+            nil -> {:reply, {:error, %{reason: "not following"}}, socket}
+            follow ->
+              Sneaky.Repo.delete!(follow)
+              {:reply, :ok, socket}
+          end
       end
     end
   end
