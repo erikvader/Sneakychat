@@ -1,8 +1,20 @@
 defmodule SneakyWeb.AdminController do
   use SneakyWeb, :controller
+  import Ecto.Query
 
   def index(conn, _params) do
     conn |> render("index.html")
+  end
+
+  def account(conn, _params), do: redirect(conn, to: "/admin/account/list")
+  def account_list(conn, _params) do
+    #! TODO: Check so that accounts without an associated user load correctly
+    query = from a in Sneaky.Auth.Account,
+              preload: [:user]
+    accounts =  Sneaky.Repo.all(query)
+
+    conn
+    |> render("account_list.html", accounts: accounts)
   end
 
   def setup(conn, %{"step" => step}) do
@@ -38,9 +50,12 @@ defmodule SneakyWeb.AdminController do
       {:error, _} ->
         # Probably a database error
         # TODO: Improve checking
+        #conn
+        #|> put_flash(:error, "Database error")
+        #|> redirect(to: "/admin/setup")
         conn
-        |> put_flash(:error, "Database error")
-        |> redirect(to: "/admin/setup")
+        |> send_resp(500, "Database error")
+        |> halt()
       _ ->
         conn
         |> put_flash(:error, "Invalid input")

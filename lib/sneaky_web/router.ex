@@ -47,6 +47,11 @@ defmodule SneakyWeb.Router do
       pipe_through [:maybe_auth, :just_auth]
 
       get "/", AdminController, :index
+      
+      scope "/account" do
+        get "/", AdminController, :account
+        get "/list", AdminController, :account_list
+      end
 
       #! TODO: Should not require authentication
       #! TODO: Check if already set-up

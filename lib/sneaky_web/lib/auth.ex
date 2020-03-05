@@ -24,7 +24,8 @@ defmodule SneakyWeb.Lib.Auth do
     query = from a in Sneaky.Auth.Account,
     join: u in Sneaky.Auth.User, on: u.account_id == a.id,
     where: a.username == ^username,
-    select: {a, u.password}
+    select: {a, u.password},
+    preload: [:user]
     
     case Sneaky.Repo.one(query) do
       nil -> {:error, :not_found}
