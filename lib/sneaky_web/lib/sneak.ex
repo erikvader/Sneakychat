@@ -27,6 +27,13 @@ defmodule SneakyWeb.Lib.Sneak do
     Sneaky.Repo.exists?(query)
   end
 
+  # Returns true if `username` is in our `accounts` table.
+  def account_exists?(username) do
+    query = from a in Sneaky.Auth.Account,
+      where: a.username == ^username
+    Sneaky.Repo.exists?(query)
+  end
+
   # returns the account schema with `username` and `url`. If this
   # account does not exists, then it is created.
   def get_account(username, url) do
