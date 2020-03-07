@@ -1,5 +1,6 @@
 defmodule SneakyWeb.UserChannel do
   use Phoenix.Channel
+  import SneakyWeb.Util
 
   def join("user:" <> uid, _message, socket) do
     if uid == socket.assigns.user_id do
@@ -34,14 +35,45 @@ defmodule SneakyWeb.UserChannel do
     {:noreply, socket}
   end
 
-  def handle_in("follow", %{"friend" => url}, socket) do
-    # TODO: follow url
-    {:noreply, socket}
+  def handle_in("follow", %{"friend" => friend}, socket) do
+    alias Sneaky.Auth.Account
+    alias Sneaky.Auth.Follow
+
+    user_acc = socket.assigns.account
+
+    with uri <- URI.parse(friend),
+         "/users/" <> friend <- uri.path do
+      friend_acc = get_account(friend, uri.host)
+
+      %Follow{}
+      |> Follow.changeset(%{subject: user_acc, follows: friend_acc})
+      |> Sneaky.Repo.insert
+      |> case do
+           {:ok, _} -> {:reply, :ok, socket}
+           {:error, _} -> {:reply, {:error, %{reason: "already following"}}, socket}
+         end
+    end
   end
 
-  def handle_in("unfollow", %{"former_friend" => url}, socket) do
-    # TODO: unfollow url
-    {:noreply, socket}
+  def handle_in("unfollow", %{"not_friend" => not_friend}, socket) do
+    alias Sneaky.Auth.Account
+    alias Sneaky.Auth.Follow
+
+    user_acc = socket.assigns.account
+
+    with uri <- URI.parse(not_friend),
+         "/users/" <> not_friend <- uri.path do
+      case Sneaky.Repo.get_by(Account, [username: not_friend, url: uri.host]) do
+        nil -> {:reply, {:error, %{reason: "no such account"}}, socket}
+        not_friend_acc ->
+          case Sneaky.Repo.get_by(Follow, [subject_id: user_acc.id, follows_id: not_friend_acc.id]) do
+            nil -> {:reply, {:error, %{reason: "not following"}}, socket}
+            follow ->
+              Sneaky.Repo.delete!(follow)
+              {:reply, :ok, socket}
+          end
+      end
+    end
   end
 
   def handle_in("follows", _msg, socket) do
