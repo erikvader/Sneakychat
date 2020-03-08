@@ -160,9 +160,9 @@ at.server_send_sneak = (receiver, sender, url) => {
 }
 
 at.follow = (friend) => {
-    promise = at.channel.push("follow", {"friend": `http://localhost/users/${friend}`})
-          .receive("ok", resp => console.log("ok", resp))
-          .receive("error", resp => console.error("error", resp))
+    at.channel.push("follow", {"friend": `http://localhost/users/${friend}`})
+        .receive("ok", resp => console.log("ok", resp))
+        .receive("error", resp => console.error("error", resp))
 }
 at.unfollow = (not_friend) => {
     at.channel.push("unfollow", {"not_friend": `http://localhost/users/${not_friend}`})
