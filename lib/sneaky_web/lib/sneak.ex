@@ -82,4 +82,36 @@ defmodule SneakyWeb.Lib.Sneak do
       }
     }
   end
+
+  def get_follows(uid) do
+    q = from f in Sneaky.Auth.Follow,
+      join: a in Sneaky.Auth.Account, on: f.follows_id == a.id,
+      where: f.subject_id == ^uid,
+      select: %{"username" => a.username, "host" => a.url}
+
+    Sneaky.Repo.all(q)
+  end
+
+  def get_feed(uid, limit, before) do
+    # NOTE: oerhört fult att kopiera så här, men jag pallade inte
+    # lista ut hur man gjorde det snyggt... (eller det gick inge bra i
+    # alla fall) Fixa gärna!
+    if not is_nil before do
+      from a in Sneaky.Auth.Account,
+        join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
+        join: r in Sneaky.Auth.SneakRecv, on: r.sneak_id == s.id and r.recv_id == ^uid,
+        limit: ^limit,
+        where: s.inserted_at < ^before,
+        order_by: [desc: s.inserted_at],
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at}
+    else
+      from a in Sneaky.Auth.Account,
+        join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
+        join: r in Sneaky.Auth.SneakRecv, on: r.sneak_id == s.id and r.recv_id == ^uid,
+        limit: ^limit,
+        order_by: [desc: s.inserted_at],
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at}
+    end
+    |> Sneaky.Repo.all
+  end
 end

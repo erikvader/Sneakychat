@@ -41,7 +41,7 @@ defmodule Sneaky.Repo.Migrations.CreateUsers do
       add :url, :string
       add :sender_id, references(:accounts)
 
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create unique_index(:sneaks, [:url, :sender_id], name: :sneaks_url_sender)

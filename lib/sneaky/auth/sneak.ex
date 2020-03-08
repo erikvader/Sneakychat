@@ -6,7 +6,7 @@ defmodule Sneaky.Auth.Sneak do
     field :url, :string
     belongs_to :sender, Sneaky.Auth.Account
 
-    timestamps()
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false
