@@ -1,0 +1,12 @@
+<section>
+  <h1>Account list</h1>
+
+  <ul>
+    <%= for account <- @accounts do %>
+      <li>email: <%= account.user.email %> 
+      <br>username: <%= account.username %>
+      <br>email: <%= account.user.email %>
+      <br>role: <%= account.user.role %></li>
+    <% end %>
+  </ul>
+</section>

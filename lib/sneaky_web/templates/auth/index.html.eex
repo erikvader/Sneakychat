@@ -1,0 +1,7 @@
+<p>Login</p>
+
+<%= form_for @conn, @callback_url, fn f -> %>
+  <%= text_input f, :username %>
+  <%= password_input f, :password %>
+  <%= submit "sign in" %>
+<% end %>
