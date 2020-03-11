@@ -82,7 +82,20 @@ defmodule SneakyWeb.UserChannel do
   end
 
   def handle_in("follows", _msg, socket) do
-    {:reply, {:ok, %{follows: ["kalle anka", "pelle pellesson"]}}, socket}
+    fols = get_follows(socket.assigns.account.id)
+    {:reply, {:ok, %{follows: fols}}, socket}
+  end
+
+  def handle_in("feed", msg, socket) do
+    time =
+      with %{"before" => a} <- msg,
+           {:ok, t, _} <- DateTime.from_iso8601(a) do
+        t
+      else
+        _ -> nil
+      end
+    feed = get_feed(socket.assigns.account.id, 10, time)
+    {:reply, {:ok, %{feed: feed, valid_before: not is_nil(time), limit: 10}}, socket}
   end
 
   # functions for new_sneak ###################################################

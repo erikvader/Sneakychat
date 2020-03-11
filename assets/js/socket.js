@@ -83,7 +83,7 @@ at.client_send_sneak = recvs => {
 
 at.get_follows = () => {
   at.channel.push("follows")
-    .receive("ok", resp => {console.log("dina vänner är:", resp.follows.join(", "))})
+    .receive("ok", resp => {console.log("dina vänner är:", resp.follows)})
 }
 
 at.register = (user, pass, elektronisk_brevpost) => {
@@ -160,14 +160,19 @@ at.server_send_sneak = (receiver, sender, url) => {
 }
 
 at.follow = (friend) => {
-    promise = at.channel.push("follow", {"friend": `http://localhost/users/${friend}`})
-          .receive("ok", resp => console.log("ok", resp))
-          .receive("error", resp => console.error("error", resp))
+    at.channel.push("follow", {"friend": `http://localhost/users/${friend}`})
+        .receive("ok", resp => console.log("ok", resp))
+        .receive("error", resp => console.error("error", resp))
 }
 at.unfollow = (not_friend) => {
     at.channel.push("unfollow", {"not_friend": `http://localhost/users/${not_friend}`})
         .receive("ok", resp => console.log("ok", resp))
         .receive("error", resp => console.error("error", resp))
+}
+
+at.get_feed = before => {
+  at.channel.push("feed", before ? {before: before} : {})
+    .receive("ok", resp => console.log("ok", resp))
 }
 
 export default at.socket
