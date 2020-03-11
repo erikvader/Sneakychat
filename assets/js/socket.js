@@ -6,6 +6,7 @@
 // Pass the token on params as below. Or remove it
 // from the params if you are not using authentication.
 import {Socket} from "phoenix"
+import cat from "./cat.js"
 
 window.api_test = {}
 const at = window.api_test
@@ -53,17 +54,16 @@ const at = window.api_test
 //
 
 // Connect and listen for sneaks.
-at.connect = function(jwt) {
+at.connect = function(jwt, username) {
   at.socket = new Socket("/api/ws", {params: {token: jwt}})
   // Finally, connect to the socket:
   at.socket.connect()
 
-  const user_id = JSON.parse(atob(jwt.split(".")[1])).sub
   // Now that you are connected, you can join channels with a topic:
-  at.channel = at.socket.channel("user:" + user_id, {})
+  at.channel = at.socket.channel("user:" + username, {})
 
   at.channel.on("recv_sneak", payload => {
-    console.log("du fick en ny sneak!", payload.msg, "från", payload.from);
+    console.log("du fick en ny sneak!", payload.msg);
   })
 
   at.channel.join()
@@ -72,7 +72,14 @@ at.connect = function(jwt) {
 }
 
 // send a sneak to someone
-at.send_sneak = (recv, msg) => at.channel.push("new_sneak", {receiver: recv, msg: msg});
+at.client_send_sneak = recvs => {
+  at.channel.push("new_sneak", {
+    to: recvs.map(r => ({recv_user: r, recv_host: "localhost"})),
+    img: cat
+  })
+    .receive("ok", resp => {console.log("bild uppladades", resp)})
+    .receive("error", resp => {console.log("fel med uppladning utav bild", resp)})
+}
 
 at.get_follows = () => {
   at.channel.push("follows")
@@ -120,10 +127,10 @@ at.login = (user, pass) => {
 
 at.login_n_connect = (user, pass) => {
   at.login(user, pass)
-    .then(resp => at.connect(resp.token))
+    .then(resp => at.connect(resp.token, user))
 }
 
-at.send_sneak = (receiver, sender, url) => {
+at.server_send_sneak = (receiver, sender, url) => {
   const resp = fetch(
     `/users/${receiver}/inbox`,
     {

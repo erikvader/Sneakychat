@@ -79,6 +79,8 @@ defmodule SneakyWeb.Router do
     post "/:username/inbox", InboxController, :inbox
   end
 
+  get "/sneakies/:imgpath", SneakyWeb.SneakController, :get
+
   # Other scopes may use custom stacks.
   # scope "/api", SneakyWeb do
   #   pipe_through :api
