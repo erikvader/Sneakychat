@@ -2,12 +2,14 @@ defmodule SneakyWeb.AuthController do
   import Ecto.Query, only: [from: 2]
   
   use SneakyWeb, :controller
+  plug Ueberauth
+  alias Ueberauth.Strategy.Helpers
 
   def request(conn, _params) do
     render(conn, "index.html", callback_url: Helpers.callback_url(conn))
   end
   
-  def identity_callback(conn, params) do
+  def identity_callback(%{assigns: %{ueberauth_auth: auth}} = conn, params) do
     with %{"username" => username, "password" => password} <- auth.extra.raw_info,
          {:ok, user} <- SneakyWeb.Lib.Auth.authenticate_(username, password),
          claims <- %{"role" => user.user.role} #! TODO: Use claims from DB

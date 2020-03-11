@@ -4,7 +4,6 @@ defmodule SneakyWeb.API.AuthController do
     """
     use SneakyWeb, :controller
     import Ecto.Query, only: [from: 2]
-    plug Ueberauth
 
     # Should not be used in the current state.
     def request(conn, params)
@@ -23,7 +22,7 @@ defmodule SneakyWeb.API.AuthController do
     """
     # TODO: Implement rate-limiting
     # TODO: Hash passwords
-    def identity_callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"username" => username, "password" => password}) do
+    def identity_callback(conn, %{"username" => username, "password" => password}) do
       case SneakyWeb.Lib.Auth.authenticate(username, password) do
         {:ok, token} -> conn |> json(%{status: 0, token: token})
         {:error, :password} -> conn |> json(%{status: 1, msg: "incorrect password"}) # TODO: Should we really say this?
