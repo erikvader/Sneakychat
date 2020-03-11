@@ -16,8 +16,6 @@ defmodule Sneaky.Repo.Migrations.CreateUsers do
     create table(:users) do
       add :email, :string
       add :password, :string
-      add :role, :integer
-      add :is_banned, :boolean
       add :account_id, references(:accounts)
 
       timestamps()

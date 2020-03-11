@@ -24,10 +24,20 @@ defmodule SneakyWeb.API.AuthController do
     # TODO: Implement rate-limiting
     # TODO: Hash passwords
     def identity_callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"username" => username, "password" => password}) do
-      case SneakyWeb.Lib.Auth.authenticate(username, password) do
-        {:ok, token} -> conn |> json(%{status: 0, token: token})
-        {:error, :password} -> conn |> json(%{status: 1, msg: "incorrect password"}) # TODO: Should we really say this?
-        {:error, :not_found} -> conn |> json(%{status: 2, msg: "user not found"})
+      query = from a in Sneaky.Auth.Account,
+        join: u in Sneaky.Auth.User, on: u.account_id == a.id,
+        where: a.username == ^username,
+        select: {a, u.password}
+
+      case Sneaky.Repo.one(query) do
+        nil -> conn |> json(%{status: 2, msg: "user not found"})
+        {acc, pass} ->
+          if pass == password do
+            {:ok, token, _claims} = Sneaky.Guardian.encode_and_sign(acc)
+            conn |> json(%{status: 0, token: token})
+          else
+            conn |> json(%{status: 1, msg: "incorrect password"})
+          end
       end
     end
     def identity_callback(conn, _params), do: conn |> json(%{"error" => "something went wrong"})
@@ -53,12 +63,12 @@ defmodule SneakyWeb.API.AuthController do
         {:error, changeset} ->
           case changeset.errors do
             [accounts_username_url_constraint: _] ->
-              json(conn, %{status: 2, msg: "username taken"})
+              json(conn, %{status: 2, msg: "that username is already taken"})
             [email: _] ->
-              json(conn, %{status: 3, msg: "email in use"})
+              json(conn, %{status: 3, msg: "email already in use"})
             _ ->
               IO.inspect(changeset, label: "changeset")
-              conn |> json(%{status: 1, msg: "something went wrong"})
+              conn |> json(%{status: 1, msg: "some random error, please contact support"})
           end
       end
     end
