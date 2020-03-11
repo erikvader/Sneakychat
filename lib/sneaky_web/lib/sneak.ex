@@ -11,7 +11,7 @@ defmodule SneakyWeb.Lib.Sneak do
       sender_acc = get_account(sender.username, sender.url)
       sneak = get_sneak(image_url, sender_acc)
 
-      recv_change = SneakRecv.changeset(%SneakRecv{}, %{recv: receiver_acc, sneak: sneak})
+      recv_change = SneakRecv.changeset(%SneakRecv{}, %{recv: receiver_acc, sneak: sneak, opened: false})
       case repo.insert(recv_change, on_conflict: :nothing) do
         {:ok, _} -> :ok
         {:error, changeset} -> repo.rollback(changeset)

@@ -5,6 +5,7 @@ defmodule Sneaky.Auth.SneakRecv do
   schema "sneak_recvs" do
     belongs_to :recv, Sneaky.Auth.Account
     belongs_to :sneak, Sneaky.Auth.Sneak
+    field :opened, :boolean, default: false
 
     timestamps()
   end
