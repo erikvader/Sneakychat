@@ -11,7 +11,7 @@ defmodule SneakyWeb.Lib.Sneak do
       sender_acc = get_account(sender.username, sender.url)
       sneak = get_sneak(image_url, sender_acc)
 
-      recv_change = SneakRecv.changeset(%SneakRecv{}, %{recv: receiver_acc, sneak: sneak, opened: false})
+      recv_change = SneakRecv.changeset(%SneakRecv{}, %{recv: receiver_acc, sneak: sneak})
       case repo.insert(recv_change, on_conflict: :nothing) do
         {:ok, _} -> :ok
         {:error, changeset} -> repo.rollback(changeset)
@@ -65,13 +65,15 @@ defmodule SneakyWeb.Lib.Sneak do
   def mark_sneak_opened(sneak_recv_id) do
     alias Sneaky.Auth.SneakRecv
 
-    sneak_recv = Sneaky.Repo.get_by!(SneakRecv, [id: sneak_recv_id])
-    Sneaky.Repo.preload(sneak_recv, :recv)
-
-    sneak_recv
-    |> SneakRecv.changeset(%{opened: true})
-    |> Sneaky.Repo.update!
-    |> IO.inspect
+    with sr when not is_nil(sr) <- Sneaky.Repo.get(SneakRecv, sneak_recv_id),
+         new_sr <- Ecto.Changeset.change(sr, opened: true),
+         {:ok, _} <- Sneaky.Repo.update(new_sr) do
+      :ok
+    else
+      err ->
+        IO.inspect(err, label: "sneak_opened_error")
+        :error
+    end
   end
 
   def create_user_url(host, username) do
@@ -113,7 +115,7 @@ defmodule SneakyWeb.Lib.Sneak do
         join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
         join: r in Sneaky.Auth.SneakRecv, on: r.sneak_id == s.id and r.recv_id == ^uid,
         limit: ^limit,
-        where: s.inserted_at < ^before,
+        where: s.inserted_at < ^before and not r.opened,
         order_by: [desc: s.inserted_at],
         select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
     else
@@ -121,10 +123,10 @@ defmodule SneakyWeb.Lib.Sneak do
         join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
         join: r in Sneaky.Auth.SneakRecv, on: r.sneak_id == s.id and r.recv_id == ^uid,
         limit: ^limit,
+        where: not r.opened,
         order_by: [desc: s.inserted_at],
         select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
     end
     |> Sneaky.Repo.all
-    |> IO.inspect
   end
 end

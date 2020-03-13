@@ -100,7 +100,7 @@ defmodule SneakyWeb.UserChannel do
 
   def handle_in("open", %{"sneak_recv" => sneak_recv_id}, socket) do
     mark_sneak_opened(sneak_recv_id)
-    {:reply, :ok, socket}
+    {:noreply, socket}
   end
 
   # functions for new_sneak ###################################################
