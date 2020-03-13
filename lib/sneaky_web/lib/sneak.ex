@@ -62,6 +62,18 @@ defmodule SneakyWeb.Lib.Sneak do
        end
   end
 
+  def mark_sneak_opened(sneak_recv_id) do
+    alias Sneaky.Auth.SneakRecv
+
+    sneak_recv = Sneaky.Repo.get_by!(SneakRecv, [id: sneak_recv_id])
+    Sneaky.Repo.preload(sneak_recv, :recv)
+
+    sneak_recv
+    |> SneakRecv.changeset(%{opened: true})
+    |> Sneaky.Repo.update!
+    |> IO.inspect
+  end
+
   def create_user_url(host, username) do
     if not String.starts_with?(host, "http://") do
       create_user_url("http://" <> host, username)
@@ -103,15 +115,16 @@ defmodule SneakyWeb.Lib.Sneak do
         limit: ^limit,
         where: s.inserted_at < ^before,
         order_by: [desc: s.inserted_at],
-        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at}
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
     else
       from a in Sneaky.Auth.Account,
         join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
         join: r in Sneaky.Auth.SneakRecv, on: r.sneak_id == s.id and r.recv_id == ^uid,
         limit: ^limit,
         order_by: [desc: s.inserted_at],
-        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at}
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
     end
     |> Sneaky.Repo.all
+    |> IO.inspect
   end
 end
