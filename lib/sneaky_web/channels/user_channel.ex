@@ -98,6 +98,11 @@ defmodule SneakyWeb.UserChannel do
     {:reply, {:ok, %{feed: feed, valid_before: not is_nil(time), limit: 10}}, socket}
   end
 
+  def handle_in("open", %{"sneak_recv" => sneak_recv_id}, socket) do
+    mark_sneak_opened(sneak_recv_id)
+    {:noreply, socket}
+  end
+
   # functions for new_sneak ###################################################
 
   # send sneaks to all receivers
@@ -159,7 +164,7 @@ defmodule SneakyWeb.UserChannel do
 
   # try to send the sneak to a receivers inbox.
   defp ns_post_to_receiver(recv_host, recv_user, img_url, socket) do
-    # TODO: webfingra this bi$ch
+    # TODO: get target adress from webfingers
     recv_url = create_user_url(recv_host, recv_user)
     send_url = create_user_url(SneakyWeb.Endpoint.url, socket.assigns.account.username)
     activityp_json = create_new_sneak_json(send_url, recv_url, img_url)

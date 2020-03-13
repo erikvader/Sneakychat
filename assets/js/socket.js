@@ -175,4 +175,8 @@ at.get_feed = before => {
     .receive("ok", resp => console.log("ok", resp))
 }
 
+at.open = (sneak_recv_id) => {
+    at.channel.push("open", {"sneak_recv": sneak_recv_id})
+}
+
 export default at.socket

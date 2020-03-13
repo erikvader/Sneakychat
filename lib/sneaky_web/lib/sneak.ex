@@ -62,6 +62,20 @@ defmodule SneakyWeb.Lib.Sneak do
        end
   end
 
+  def mark_sneak_opened(sneak_recv_id) do
+    alias Sneaky.Auth.SneakRecv
+
+    with sr when not is_nil(sr) <- Sneaky.Repo.get(SneakRecv, sneak_recv_id),
+         new_sr <- Ecto.Changeset.change(sr, opened: true),
+         {:ok, _} <- Sneaky.Repo.update(new_sr) do
+      :ok
+    else
+      err ->
+        IO.inspect(err, label: "sneak_opened_error")
+        :error
+    end
+  end
+
   def create_user_url(host, username) do
     if not String.starts_with?(host, "http://") do
       create_user_url("http://" <> host, username)
@@ -101,16 +115,17 @@ defmodule SneakyWeb.Lib.Sneak do
         join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
         join: r in Sneaky.Auth.SneakRecv, on: r.sneak_id == s.id and r.recv_id == ^uid,
         limit: ^limit,
-        where: s.inserted_at < ^before,
+        where: s.inserted_at < ^before and not r.opened,
         order_by: [desc: s.inserted_at],
-        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at}
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
     else
       from a in Sneaky.Auth.Account,
         join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
         join: r in Sneaky.Auth.SneakRecv, on: r.sneak_id == s.id and r.recv_id == ^uid,
         limit: ^limit,
+        where: not r.opened,
         order_by: [desc: s.inserted_at],
-        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at}
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
     end
     |> Sneaky.Repo.all
   end

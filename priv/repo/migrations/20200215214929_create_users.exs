@@ -50,6 +50,7 @@ defmodule Sneaky.Repo.Migrations.CreateUsers do
     create table(:sneak_recvs) do
       add :recv_id, references(:accounts)
       add :sneak_id, references(:sneaks)
+      add :opened, :boolean
 
       timestamps()
     end
