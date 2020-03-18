@@ -15,4 +15,5 @@ npm install
  Make it public by adding a read-only policy to everything in that bucket.
 
 ## To run
-  * `docker-compose up`
+  1. Make sure that the host in `config/config.exs` is a publicly accessible hostname or IP-address.
+  2. `docker-compose up`
