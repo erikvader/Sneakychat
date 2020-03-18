@@ -40,7 +40,7 @@ defmodule SneakyWeb.Lib.Sneak do
     alias Sneaky.Auth.Account
 
     # special case for referring to ourselves. if `url` is simply an
-    # IP-address then will URI.parse return the host as nil, in which
+    # IP-address then URI.parse will return the host as nil, in which
     # case `url` will be used as backup.
     my_host = URI.parse(SneakyWeb.Endpoint.url).host
     host = case URI.parse(url).host || url do
