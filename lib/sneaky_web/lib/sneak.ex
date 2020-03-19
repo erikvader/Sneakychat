@@ -39,12 +39,21 @@ defmodule SneakyWeb.Lib.Sneak do
   def get_account(username, url) do
     alias Sneaky.Auth.Account
 
+    # special case for referring to ourselves. if `url` is simply an
+    # IP-address then URI.parse will return the host as nil, in which
+    # case `url` will be used as backup.
+    my_host = URI.parse(SneakyWeb.Endpoint.url).host
+    host = case URI.parse(url).host || url do
+             ^my_host -> "localhost"
+             x -> x
+           end
+
     %Account{}
-    |> Account.changeset(%{username: username, url: url})
+    |> Account.changeset(%{username: username, url: host})
     |> Sneaky.Repo.insert(on_conflict: :nothing)
     |> case do
          {:ok, %Account{id: id} = acc} when id != nil -> acc
-         _ -> Sneaky.Repo.get_by!(Account, [username: username, url: url])
+         _ -> Sneaky.Repo.get_by!(Account, [username: username, url: host])
        end
   end
 
@@ -117,7 +126,7 @@ defmodule SneakyWeb.Lib.Sneak do
         limit: ^limit,
         where: s.inserted_at < ^before and not r.opened,
         order_by: [desc: s.inserted_at],
-        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id, "host" => a.url}
     else
       from a in Sneaky.Auth.Account,
         join: s in Sneaky.Auth.Sneak, on: s.sender_id == a.id,
@@ -125,8 +134,12 @@ defmodule SneakyWeb.Lib.Sneak do
         limit: ^limit,
         where: not r.opened,
         order_by: [desc: s.inserted_at],
-        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id}
+        select: %{"username" => a.username, "url" => s.url, "send_date" => s.inserted_at, "sneak_recv" => r.id, "host" => a.url}
     end
     |> Sneaky.Repo.all
+    |> Enum.map(fn
+      %{"host" => "localhost"} = m -> %{m | "host" => URI.parse(SneakyWeb.Endpoint.url).host}
+      m -> m
+    end)
   end
 end
